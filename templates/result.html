@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Results</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.6s forwards;
+        }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .progress-container {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            width: 0;
+            animation: grow 1s forwards;
+            animation-delay: 0.3s;
+        }
+        @keyframes grow {
+            to { width: var(--progress); }
+        }
+        .skill-item {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+        .match { color: #4CAF50; }
+        .missing { color: #F44336; }
+        .btn {
+            display: inline-block;
+            background: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="result-card">
+        <h2 style="margin-top: 0;">{{ name }}'s Match Result</h2>
+        <p><strong>Target Role:</strong> {{ job_title }}</p>
+        
+        <div class="progress-container">
+            <div class="progress-bar" style="--progress: {{ match_percentage }}%"></div>
+        </div>
+        <p style="text-align: center; font-weight: bold;">
+            {{ match_score }} ({{ match_percentage }}%) Skills Matched
+        </p>
+        
+        <h3><i class="fas fa-check-circle match"></i> Matching Skills:</h3>
+        <div class="skills-list">
+            {% for skill in matched_skills %}
+            <div class="skill-item match" style="animation-delay: {{ 0.4 + loop.index0 * 0.1 }}s;">
+                <i class="fas fa-check"></i> {{ skill }}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <h3><i class="fas fa-times-circle missing"></i> Missing Skills:</h3>
+        <div class="skills-list">
+            {% for skill in missing_skills %}
+            <div class="skill-item missing" style="animation-delay: {{ 0.4 + (matched_skills|length + loop.index0) * 0.1 }}s;">
+                <i class="fas fa-times"></i> {{ skill }}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <a href="/" class="btn">
+            <i class="fas fa-sync-alt"></i> Check Another Resume
+        </a>
+    </div>
+
+    <!-- Confetti effect for good matches -->
+    {% if match_percentage >= 70 %}
+    <script>
+        setTimeout(() => {
+            const colors = ['#FFC107', '#FF5722', '#E91E63', '#9C27B0', '#673AB7'];
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = confetti.style.width;
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.zIndex = '1000';
+                confetti.style.animation = fall ${Math.random() * 2 + 2}s linear forwards;
+                document.head.insertAdjacentHTML('beforeend', `
+                    <style>
+                        @keyframes fall {
+                            to { 
+                                transform: translateY(100vh) rotate(${Math.random() * 360}deg); 
+                                opacity: 0;
+                            }
+                        }
+                    </style>
+                `);
+                document.body.appendChild(confetti);
+            }
+        }, 800);
+    </script>
+    {% endif %}
+</body>
+</html>

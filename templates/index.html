@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resume Screener</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .form-card {
+            background: rgb(224, 221, 215);
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #20598f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #6ba9e0;
+            transform: translateY(-2px);
+        }
+        #custom_job {
+            display: none;
+            margin-top: 5px;
+        }
+        .skill-hint {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: -5px;
+            margin-bottom: 10px;
+        }
+        /* Fixed Select2 styles */
+        .select2-container {
+            width: 100% !important;
+            margin: 10px 0;
+        }
+        .select2-selection {
+            height: 40px !important;
+            padding: 5px !important;
+            border: 1px solid #ddd !important;
+            border-radius: 5px !important;
+        }
+        .select2-selection__arrow {
+            height: 38px !important;
+        }
+        .select2-dropdown {
+            border: 1px solid #ddd !important;
+            border-radius: 5px !important;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-card">
+        <h2 style="margin-top: 0;">Resume Screener</h2>
+        <form method="post" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Your Name" required>
+            
+            <select id="job_title" name="job_title" required>
+                <option value="" disabled selected>Select Job Title</option>
+                <option value="Backend Developer">Backend Developer</option>
+                <option value="Data Analyst">Data Analyst</option>
+                <option value="Data Scientist">Data Scientist</option>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Product Manager">Product Manager</option>
+                <option value="Quality Tester">Quality Tester</option>
+                <option value="Software Developer">Software Developer</option>
+                <option value="Software Engineer">Software Engineer</option>
+                <option value="UX Designer">UX Designer</option>
+                <option value="other">Other (Specify Below)</option>
+            </select>
+            <input type="text" id="custom_job" name="custom_job" placeholder="Enter Custom Job Title">
+            
+            <input type="text" name="skills" id="skills" placeholder="Required Skills (comma separated)" required>
+            <p class="skill-hint" id="skillHint">e.g. python, sql, excel</p>
+            
+            <input type="file" name="resume" accept=".pdf,.docx" required>
+            <button type="submit">
+                <i class="fas fa-search"></i> Find Match 
+            </button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize select2 with proper styling
+            $('#job_title').select2({
+                placeholder: "Search or select job title",
+                width: '100%',
+                dropdownAutoWidth: true,
+                dropdownParent: $('.form-card')
+            });
+
+            // Show/hide custom job field
+            $('#job_title').on('change', function() {
+                if ($(this).val() === 'other') {
+                    $('#custom_job').show().focus();
+                } else {
+                    $('#custom_job').hide();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
