@@ -1,125 +1,244 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Resume Screener</title>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-        .form-card {
-            background: rgb(224, 221, 215);
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        input, button {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        button {
-            background: #20598f;
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        button:hover {
-            background: #6ba9e0;
-            transform: translateY(-2px);
-        }
-        #custom_job {
-            display: none;
-            margin-top: 5px;
-        }
-        .skill-hint {
-            font-size: 0.9em;
-            color: #666;
-            margin-top: -5px;
-            margin-bottom: 10px;
-        }
-        /* Fixed Select2 styles */
-        .select2-container {
-            width: 100% !important;
-            margin: 10px 0;
-        }
-        .select2-selection {
-            height: 40px !important;
-            padding: 5px !important;
-            border: 1px solid #ddd !important;
-            border-radius: 5px !important;
-        }
-        .select2-selection__arrow {
-            height: 38px !important;
-        }
-        .select2-dropdown {
-            border: 1px solid #ddd !important;
-            border-radius: 5px !important;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATS Resume Scanner</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 780px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .header h1 span { color: #6366f1; }
+
+    .header p {
+      color: #94a3b8;
+      margin-top: 8px;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: #1e2130;
+      border: 1px solid #2d3148;
+      border-radius: 16px;
+      padding: 36px;
+    }
+
+    .form-group { margin-bottom: 24px; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #e2e8f0;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    input[type="text"]:focus, textarea:focus {
+      border-color: #6366f1;
+    }
+
+    textarea { resize: vertical; min-height: 180px; line-height: 1.6; }
+
+    .upload-area {
+      border: 2px dashed #2d3148;
+      border-radius: 10px;
+      padding: 28px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .upload-area:hover { border-color: #6366f1; background: #161824; }
+    .upload-area.has-file { border-color: #22c55e; background: #0d1f13; }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-text { color: #94a3b8; font-size: 0.9rem; }
+    .upload-text strong { color: #6366f1; }
+    .file-name { color: #22c55e; font-weight: 600; margin-top: 6px; font-size: 0.9rem; display: none; }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn:hover { opacity: 0.92; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+
+    .error {
+      background: #3b1212;
+      border: 1px solid #dc2626;
+      color: #fca5a5;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .feature {
+      background: #161824;
+      border: 1px solid #2d3148;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .feature-icon { font-size: 1.4rem; margin-bottom: 6px; }
+    .feature-text { font-size: 0.78rem; color: #64748b; }
+
+    .loading { display: none; text-align: center; padding: 20px 0; }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid #2d3148;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
-    <div class="form-card">
-        <h2 style="margin-top: 0;">Resume Screener</h2>
-        <form method="post" enctype="multipart/form-data">
-            <input type="text" name="name" placeholder="Your Name" required>
-            
-            <select id="job_title" name="job_title" required>
-                <option value="" disabled selected>Select Job Title</option>
-                <option value="Backend Developer">Backend Developer</option>
-                <option value="Data Analyst">Data Analyst</option>
-                <option value="Data Scientist">Data Scientist</option>
-                <option value="Frontend Developer">Frontend Developer</option>
-                <option value="Product Manager">Product Manager</option>
-                <option value="Quality Tester">Quality Tester</option>
-                <option value="Software Developer">Software Developer</option>
-                <option value="Software Engineer">Software Engineer</option>
-                <option value="UX Designer">UX Designer</option>
-                <option value="other">Other (Specify Below)</option>
-            </select>
-            <input type="text" id="custom_job" name="custom_job" placeholder="Enter Custom Job Title">
-            
-            <input type="text" name="skills" id="skills" placeholder="Required Skills (comma separated)" required>
-            <p class="skill-hint" id="skillHint">e.g. python, sql, excel</p>
-            
-            <input type="file" name="resume" accept=".pdf,.docx" required>
-            <button type="submit">
-                <i class="fas fa-search"></i> Find Match 
-            </button>
-        </form>
+  <div class="container">
+    <div class="header">
+      <h1>ATS <span>Resume Scanner</span></h1>
+      <p>Paste any job description — get your real ATS match score instantly. Free.</p>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Initialize select2 with proper styling
-            $('#job_title').select2({
-                placeholder: "Search or select job title",
-                width: '100%',
-                dropdownAutoWidth: true,
-                dropdownParent: $('.form-card')
-            });
+    <div class="card">
+      {% if error %}
+      <div class="error">⚠ {{ error }}</div>
+      {% endif %}
 
-            // Show/hide custom job field
-            $('#job_title').on('change', function() {
-                if ($(this).val() === 'other') {
-                    $('#custom_job').show().focus();
-                } else {
-                    $('#custom_job').hide();
-                }
-            });
-        });
-    </script>
+      <form method="POST" action="/scan" enctype="multipart/form-data" id="scanForm">
+
+        <div class="form-group">
+          <label>Upload Resume (PDF or DOCX)</label>
+          <div class="upload-area" id="uploadArea">
+            <input type="file" name="resume" accept=".pdf,.docx" id="fileInput" required/>
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">Drop your resume here or <strong>click to browse</strong></div>
+            <div class="file-name" id="fileName"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Paste Job Description</label>
+          <textarea name="jd_text" placeholder="Paste the full job description here — responsibilities, requirements, skills, everything..." required></textarea>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">Scan My Resume →</button>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p style="color:#94a3b8; font-size:0.9rem;">Analyzing your resume...</p>
+        </div>
+      </form>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-text">Keyword Match Score</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">🔍</div>
+          <div class="feature-text">Missing Keywords</div>
+        </div>
+        <div class="feature">
+          <div class="feature-icon">✅</div>
+          <div class="feature-text">Section & Contact Check</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileName = document.getElementById('fileName');
+    const form = document.getElementById('scanForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loading');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files[0]) {
+        uploadArea.classList.add('has-file');
+        fileName.style.display = 'block';
+        fileName.textContent = '✓ ' + fileInput.files[0].name;
+      }
+    });
+
+    form.addEventListener('submit', () => {
+      submitBtn.style.display = 'none';
+      loading.style.display = 'block';
+    });
+  </script>
 </body>
 </html>
