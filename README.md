@@ -21,7 +21,7 @@ A free, self-built ATS resume scanner — created because every ATS scanning too
 ATS scanning tools charge ₹500–₹2000/month. This does the same thing for free.
 
 ## Live Demo
-[Link here] ← add your Render link after deploying
+[https://resume-screener-b4md.onrender.com] 
 
 ## Run Locally
 # ATS Resume Scanner
