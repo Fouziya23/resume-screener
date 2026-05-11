@@ -1,136 +1,288 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Results</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f8f9fa;
-        }
-        .result-card {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transform: translateY(20px);
-            opacity: 0;
-            animation: fadeInUp 0.6s forwards;
-        }
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .progress-container {
-            height: 10px;
-            background: #e0e0e0;
-            border-radius: 5px;
-            margin: 15px 0;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
-            width: 0;
-            animation: grow 1s forwards;
-            animation-delay: 0.3s;
-        }
-        @keyframes grow {
-            to { width: var(--progress); }
-        }
-        .skill-item {
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            opacity: 0;
-            animation: fadeIn 0.5s forwards;
-        }
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-        .match { color: #4CAF50; }
-        .missing { color: #F44336; }
-        .btn {
-            display: inline-block;
-            background: #2196F3;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            margin-top: 20px;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
-        }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATS Report</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',Arial,sans-serif;background:#0a0c14;color:#e2e8f0;min-height:100vh;padding:24px 16px}
+    .container{max-width:900px;margin:0 auto}
+
+    /* Top bar */
+    .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+    .top-bar h1{font-size:1.2rem;font-weight:700;color:#fff}
+    .top-bar h1 span{color:#6366f1}
+    .back-btn{text-decoration:none;background:#1a1d2e;border:1px solid #2d3148;color:#94a3b8;padding:7px 16px;border-radius:8px;font-size:0.82rem;transition:border-color 0.2s}
+    .back-btn:hover{border-color:#6366f1;color:#e2e8f0}
+
+    /* Score hero */
+    .score-hero{background:linear-gradient(135deg,#1a1d2e,#12152a);border:1px solid #2d3148;border-radius:16px;padding:28px 32px;display:flex;align-items:center;gap:28px;margin-bottom:16px;flex-wrap:wrap}
+    .score-circle{position:relative;width:120px;height:120px;flex-shrink:0}
+    .score-circle svg{transform:rotate(-90deg)}
+    .track{fill:none;stroke:#2d3148;stroke-width:10}
+    .fill{fill:none;stroke-width:10;stroke-linecap:round}
+    .score-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .score-num{font-size:2rem;font-weight:900;color:#fff;line-height:1}
+    .score-sub{font-size:0.72rem;color:#64748b;margin-top:2px}
+    .score-details{flex:1;min-width:200px}
+    .score-label{display:inline-block;padding:4px 14px;border-radius:999px;font-size:0.75rem;font-weight:700;letter-spacing:0.05em;margin-bottom:10px}
+    .label-success{background:#14532d;color:#4ade80}
+    .label-info{background:#1e3a5f;color:#60a5fa}
+    .label-warning{background:#3b2f00;color:#fbbf24}
+    .label-danger{background:#3b1212;color:#f87171}
+    .score-details h2{font-size:1.3rem;font-weight:700;margin-bottom:6px}
+    .score-details p{color:#64748b;font-size:0.85rem;line-height:1.5}
+    .prog-wrap{background:#2d3148;border-radius:999px;height:6px;margin-top:12px;max-width:300px;overflow:hidden}
+    .prog-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#6366f1,#8b5cf6)}
+
+    /* Score breakdown bar */
+    .breakdown-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+    .breakdown-item{background:#1a1d2e;border:1px solid #2d3148;border-radius:10px;padding:14px;text-align:center}
+    .breakdown-item .bi-score{font-size:1.4rem;font-weight:800;color:#6366f1;margin-bottom:4px}
+    .breakdown-item .bi-label{font-size:0.72rem;color:#64748b;text-transform:uppercase;letter-spacing:0.05em}
+
+    /* Grid */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+    @media(max-width:600px){.grid2{grid-template-columns:1fr}}
+    .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+    @media(max-width:700px){.grid3{grid-template-columns:1fr 1fr}}
+    @media(max-width:450px){.grid3{grid-template-columns:1fr}}
+
+    /* Cards */
+    .card{background:#1a1d2e;border:1px solid #2d3148;border-radius:12px;padding:20px;margin-bottom:14px}
+    .card-title{font-size:0.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+
+    /* Tags */
+    .tags{display:flex;flex-wrap:wrap;gap:7px}
+    .tag{padding:4px 11px;border-radius:6px;font-size:0.78rem;font-weight:500}
+    .tag-green{background:#14532d;color:#4ade80}
+    .tag-red{background:#3b1212;color:#f87171}
+    .tag-gray{background:#1e2535;color:#64748b}
+    .tag-purple{background:#2e1065;color:#c4b5fd}
+    .tag-yellow{background:#3b2f00;color:#fbbf24}
+
+    /* Category groups */
+    .cat-group{margin-bottom:12px}
+    .cat-label{font-size:0.7rem;color:#475569;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;font-weight:600}
+
+    /* Checklist */
+    .checklist{list-style:none}
+    .checklist li{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1e2535;font-size:0.85rem;color:#94a3b8}
+    .checklist li:last-child{border-bottom:none}
+    .check-badge{padding:2px 8px;border-radius:4px;font-size:0.7rem;font-weight:700;margin-left:auto}
+    .cb-pass{background:#14532d;color:#4ade80}
+    .cb-fail{background:#3b1212;color:#f87171}
+    .cb-warn{background:#3b2f00;color:#fbbf24}
+
+    /* Tips */
+    .tip{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #1e2535;align-items:flex-start}
+    .tip:last-child{border-bottom:none}
+    .tip-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+    .tip-body{flex:1}
+    .tip-text{font-size:0.85rem;color:#94a3b8;line-height:1.55}
+    .tip-priority{display:inline-block;padding:1px 8px;border-radius:4px;font-size:0.68rem;font-weight:700;margin-bottom:4px}
+    .tp-high{background:#3b1212;color:#f87171}
+    .tp-medium{background:#3b2f00;color:#fbbf24}
+    .tp-low{background:#1e2535;color:#64748b}
+
+    /* Stat pills */
+    .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .stat-pill{background:#1a1d2e;border:1px solid #2d3148;border-radius:999px;padding:6px 16px;font-size:0.8rem;color:#94a3b8}
+    .stat-pill strong{color:#e2e8f0}
+
+    /* Format warnings */
+    .warn-box{background:#2a1505;border:1px solid #92400e;border-radius:10px;padding:14px 18px;margin-bottom:14px}
+    .warn-box .warn-title{color:#fbbf24;font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px}
+    .warn-box ul{list-style:none}
+    .warn-box ul li{font-size:0.85rem;color:#fcd34d;padding:3px 0;display:flex;gap:8px}
+  </style>
 </head>
 <body>
-    <div class="result-card">
-        <h2 style="margin-top: 0;">{{ name }}'s Match Result</h2>
-        <p><strong>Target Role:</strong> {{ job_title }}</p>
-        
-        <div class="progress-container">
-            <div class="progress-bar" style="--progress: {{ match_percentage }}%"></div>
+<div class="container">
+
+  <div class="top-bar">
+    <h1>ATS <span>Analysis Report</span></h1>
+    <a href="/" class="back-btn">← Scan Again</a>
+  </div>
+
+  <!-- Score hero -->
+  <div class="score-hero">
+    <div class="score-circle">
+      <svg width="120" height="120" viewBox="0 0 120 120">
+        <circle class="track" cx="60" cy="60" r="50"/>
+        <circle class="fill" cx="60" cy="60" r="50"
+          stroke="{% if label_color=='success' %}#4ade80{% elif label_color=='info' %}#60a5fa{% elif label_color=='warning' %}#fbbf24{% else %}#f87171{% endif %}"
+          stroke-dasharray="314.2"
+          stroke-dashoffset="{{ 314.2 - (314.2 * score / 100) }}"/>
+      </svg>
+      <div class="score-text">
+        <span class="score-num">{{ score }}</span>
+        <span class="score-sub">/ 100</span>
+      </div>
+    </div>
+    <div class="score-details">
+      <div class="score-label label-{{ label_color }}">{{ label }}</div>
+      <h2>{{ matched_skills|length }} of {{ total_skills }} required skills matched</h2>
+      <p>
+        {% if score >= 80 %}Your resume is well-optimized for this role. Apply with confidence.
+        {% elif score >= 65 %}Good match. A few keyword additions will significantly improve shortlisting chances.
+        {% elif score >= 45 %}Moderate match. Review the tips below and tailor your resume before applying.
+        {% else %}Low match. This resume needs significant tailoring for this specific role.{% endif %}
+      </p>
+      <div class="prog-wrap"><div class="prog-fill" style="width:{{ score }}%"></div></div>
+    </div>
+  </div>
+
+  <!-- Stat pills -->
+  <div class="stat-row">
+    {% if title_name %}
+    <div class="stat-pill">Job Title: <strong>{{ title_name }}</strong> {% if title_match %}✅{% else %}❌ not in resume{% endif %}</div>
+    {% endif %}
+    {% if years_required %}
+    <div class="stat-pill">Experience Required: <strong>{{ years_required }}+ yrs</strong> | Your Resume: <strong>~{{ years_resume }} yrs</strong></div>
+    {% endif %}
+    <div class="stat-pill">JD Level: <strong>{{ seniority.jd_level.title() }}</strong></div>
+    <div class="stat-pill">Keyword Density: <strong>{{ density_text.split('—')[0].strip() }}</strong></div>
+    <div class="stat-pill">Action Verbs: <strong>{{ seniority.senior_signals }}</strong> strong found</div>
+  </div>
+
+  <!-- Format warnings -->
+  {% if format_warnings %}
+  <div class="warn-box">
+    <div class="warn-title">⚠ Format Issues Detected</div>
+    <ul>{% for w in format_warnings %}<li><span>→</span><span>{{ w }}</span></li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <!-- Score breakdown -->
+  <div class="breakdown-row">
+    <div class="breakdown-item">
+      <div class="bi-score">{{ ((matched_skills|length / [total_skills,1]|max) * 40)|int }}</div>
+      <div class="bi-label">Skill Match<br><span style="color:#475569;font-size:0.65rem">/ 40 pts</span></div>
+    </div>
+    <div class="breakdown-item">
+      <div class="bi-score">{{ ((matched_words|length / [15,1]|max) * 15)|int if matched_words else 0 }}</div>
+      <div class="bi-label">Keyword Match<br><span style="color:#475569;font-size:0.65rem">/ 15 pts</span></div>
+    </div>
+    <div class="breakdown-item">
+      <div class="bi-score">{{ ((sections_found|length / 8) * 15)|int }}</div>
+      <div class="bi-label">Sections<br><span style="color:#475569;font-size:0.65rem">/ 15 pts</span></div>
+    </div>
+    <div class="breakdown-item">
+      <div class="bi-score">{{ ((contact_checks.values()|list|select|list|length / 4) * 10)|int }}</div>
+      <div class="bi-label">Contact Info<br><span style="color:#475569;font-size:0.65rem">/ 10 pts</span></div>
+    </div>
+    <div class="breakdown-item">
+      <div class="bi-score">{{ [10 - format_warnings|length * 4, 0]|max }}</div>
+      <div class="bi-label">Format<br><span style="color:#475569;font-size:0.65rem">/ 10 pts</span></div>
+    </div>
+    <div class="breakdown-item">
+      <div class="bi-score">{{ score }}</div>
+      <div class="bi-label">Total Score<br><span style="color:#475569;font-size:0.65rem">/ 100 pts</span></div>
+    </div>
+  </div>
+
+  <!-- Skills matched + missing -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">✅ Skills Found in Resume</div>
+      {% if matched_by_cat %}
+        {% for cat, skills in matched_by_cat.items() %}
+        <div class="cat-group">
+          <div class="cat-label">{{ cat }}</div>
+          <div class="tags">
+            {% for s in skills %}<span class="tag tag-green">{{ s }}</span>{% endfor %}
+          </div>
         </div>
-        <p style="text-align: center; font-weight: bold;">
-            {{ match_score }} ({{ match_percentage }}%) Skills Matched
-        </p>
-        
-        <h3><i class="fas fa-check-circle match"></i> Matching Skills:</h3>
-        <div class="skills-list">
-            {% for skill in matched_skills %}
-            <div class="skill-item match" style="animation-delay: {{ 0.4 + loop.index0 * 0.1 }}s;">
-                <i class="fas fa-check"></i> {{ skill }}
-            </div>
-            {% endfor %}
-        </div>
-        
-        <h3><i class="fas fa-times-circle missing"></i> Missing Skills:</h3>
-        <div class="skills-list">
-            {% for skill in missing_skills %}
-            <div class="skill-item missing" style="animation-delay: {{ 0.4 + (matched_skills|length + loop.index0) * 0.1 }}s;">
-                <i class="fas fa-times"></i> {{ skill }}
-            </div>
-            {% endfor %}
-        </div>
-        
-        <a href="/" class="btn">
-            <i class="fas fa-sync-alt"></i> Check Another Resume
-        </a>
+        {% endfor %}
+      {% else %}
+        <span style="color:#64748b;font-size:0.85rem">No skills matched from JD.</span>
+      {% endif %}
     </div>
 
-    <!-- Confetti effect for good matches -->
-    {% if match_percentage >= 70 %}
-    <script>
-        setTimeout(() => {
-            const colors = ['#FFC107', '#FF5722', '#E91E63', '#9C27B0', '#673AB7'];
-            for (let i = 0; i < 50; i++) {
-                const confetti = document.createElement('div');
-                confetti.style.position = 'fixed';
-                confetti.style.width = Math.random() * 10 + 5 + 'px';
-                confetti.style.height = confetti.style.width;
-                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.left = Math.random() * 100 + 'vw';
-                confetti.style.top = '-10px';
-                confetti.style.zIndex = '1000';
-                confetti.style.animation = fall ${Math.random() * 2 + 2}s linear forwards;
-                document.head.insertAdjacentHTML('beforeend', `
-                    <style>
-                        @keyframes fall {
-                            to { 
-                                transform: translateY(100vh) rotate(${Math.random() * 360}deg); 
-                                opacity: 0;
-                            }
-                        }
-                    </style>
-                `);
-                document.body.appendChild(confetti);
-            }
-        }, 800);
-    </script>
-    {% endif %}
+    <div class="card">
+      <div class="card-title">❌ Missing Skills — Add These</div>
+      {% if missing_by_cat %}
+        {% for cat, skills in missing_by_cat.items() %}
+        <div class="cat-group">
+          <div class="cat-label">{{ cat }}</div>
+          <div class="tags">
+            {% for s in skills %}<span class="tag tag-red">{{ s }}</span>{% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <span style="color:#4ade80;font-size:0.85rem">✓ All required skills matched!</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- General keywords -->
+  {% if missing_words %}
+  <div class="card">
+    <div class="card-title">🔍 Other Missing Keywords from JD</div>
+    <div class="tags">
+      {% for w in missing_words %}<span class="tag tag-yellow">{{ w }}</span>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Sections + Contact -->
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📋 Resume Sections</div>
+      <ul class="checklist">
+        {% for s in sections_found %}
+        <li><span>{{ s }}</span><span class="check-badge cb-pass">Found</span></li>
+        {% endfor %}
+        {% for s in sections_missing %}
+        <li><span style="color:#64748b">{{ s }}</span><span class="check-badge cb-fail">Missing</span></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📬 Contact & Profile</div>
+      <ul class="checklist">
+        {% for item, present in contact_checks.items() %}
+        <li>
+          <span>{{ item }}</span>
+          <span class="check-badge {% if present %}cb-pass{% else %}cb-fail{% endif %}">
+            {% if present %}✓ Found{% else %}Missing{% endif %}
+          </span>
+        </li>
+        {% endfor %}
+        <li>
+          <span>Action Verbs (strong language)</span>
+          <span class="check-badge {% if seniority.senior_signals >= 3 %}cb-pass{% elif seniority.senior_signals >= 1 %}cb-warn{% else %}cb-fail{% endif %}">
+            {{ seniority.senior_signals }} found
+          </span>
+        </li>
+        <li>
+          <span>Weak Language (assisted/helped/familiar)</span>
+          <span class="check-badge {% if seniority.junior_signals == 0 %}cb-pass{% elif seniority.junior_signals <= 2 %}cb-warn{% else %}cb-fail{% endif %}">
+            {{ seniority.junior_signals }} found
+          </span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="card">
+    <div class="card-title">💡 Actionable Recommendations</div>
+    {% for tip in tips %}
+    <div class="tip">
+      <div class="tip-icon">{{ tip.icon }}</div>
+      <div class="tip-body">
+        <div class="tip-priority tp-{{ tip.priority|lower }}">{{ tip.priority }} Priority</div>
+        <div class="tip-text">{{ tip.text }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
 </body>
 </html>
